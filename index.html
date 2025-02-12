@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>¿Angela, quieres ser mi San Valentín?</title>
+  <style>
+    /* Reset básico */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: 'Arial', sans-serif;
+      overflow: hidden;
+      background: #fdfdfd;
+      position: relative;
+    }
+    /* Corazones flotantes en el fondo */
+    .floating-heart {
+      position: fixed;
+      bottom: -50px;
+      width: 30px;
+      height: 30px;
+      background-color: #ff4d4d;
+      transform: rotate(45deg);
+      opacity: 0.7;
+      animation: floatUp linear forwards;
+    }
+    .floating-heart::before,
+    .floating-heart::after {
+      content: "";
+      position: absolute;
+      width: 30px;
+      height: 30px;
+      background-color: #ff4d4d;
+      border-radius: 50%;
+    }
+    .floating-heart::before {
+      top: -15px;
+      left: 0;
+    }
+    .floating-heart::after {
+      left: 15px;
+      top: 0;
+    }
+    @keyframes floatUp {
+      0% {
+        transform: translateY(0) rotate(45deg) scale(0.5);
+        opacity: 0;
+      }
+      50% {
+        opacity: 1;
+      }
+      100% {
+        transform: translateY(-110vh) rotate(45deg) scale(1);
+        opacity: 0;
+      }
+    }
+    /* Pantallas generales centradas con position fixed */
+    .screen {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      text-align: center;
+      width: 100%;
+      max-width: 800px;
+      padding: 20px;
+      box-sizing: border-box;
+      opacity: 0;
+      transition: opacity 1s ease;
+      z-index: 2;
+    }
+    .screen.visible {
+      opacity: 1;
+    }
+    /* Pantalla inicial */
+    #initialScreen h1 {
+      font-size: 2.5em;
+      margin-bottom: 20px;
+      animation: slideDown 1.5s ease forwards;
+    }
+    @keyframes slideDown {
+      from { opacity: 0; transform: translateY(-20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    #initialScreen button {
+      padding: 12px 24px;
+      font-size: 1.2em;
+      border: none;
+      border-radius: 8px;
+      background-color: #ff4d4d;
+      color: #fff;
+      cursor: pointer;
+      transition: transform 0.3s ease;
+    }
+    #initialScreen button:hover {
+      transform: scale(1.1);
+    }
+    /* Pantalla del juego */
+    #gameScreen {
+      width: 100%;
+      height: 100vh;
+      background: linear-gradient(135deg, #fad0c4, #ff9a9e);
+      overflow: hidden;
+    }
+    #gameScreen h2 {
+      font-size: 2em;
+      margin-bottom: 20px;
+      color: #fff;
+      text-shadow: 1px 1px 3px #000;
+      position: absolute;
+      top: 20px;
+      width: 100%;
+      text-align: center;
+    }
+    /* Corazón interactivo */
+    #interactiveHeart {
+      position: absolute;
+      width: 60px;
+      height: 60px;
+      background-color: #ff4d4d;
+      transform: rotate(45deg);
+      cursor: pointer;
+      animation: pulsate 1.5s infinite;
+    }
+    #interactiveHeart::before,
+    #interactiveHeart::after {
+      content: "";
+      position: absolute;
+      width: 60px;
+      height: 60px;
+      background-color: #ff4d4d;
+      border-radius: 50%;
+    }
+    #interactiveHeart::before {
+      top: -30px;
+      left: 0;
+    }
+    #interactiveHeart::after {
+      left: 30px;
+      top: 0;
+    }
+    @keyframes pulsate {
+      0% { transform: scale(1) rotate(45deg); }
+      50% { transform: scale(1.2) rotate(45deg); }
+      100% { transform: scale(1) rotate(45deg); }
+    }
+    /* Pantalla de la pregunta */
+    #questionScreen h1 {
+      font-size: 2.2em;
+      margin-bottom: 30px;
+      color: #ff4d4d;
+      animation: bounceIn 1s ease forwards;
+    }
+    @keyframes bounceIn {
+      0% { transform: scale(0.5); opacity: 0; }
+      60% { transform: scale(1.2); opacity: 1; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+    #questionScreen button {
+      padding: 12px 24px;
+      font-size: 1.2em;
+      border: none;
+      border-radius: 8px;
+      background-color: #ff4d4d;
+      color: #fff;
+      cursor: pointer;
+      margin: 20px;
+      transition: transform 0.3s ease;
+    }
+    #questionScreen button:hover {
+      transform: scale(1.1);
+    }
+    /* El botón "No" se moverá */
+    #noButton {
+      position: relative;
+      transition: all 0.5s ease;
+    }
+    /* Pantalla final */
+    #finalScreen h1 {
+      font-size: 2.8em;
+      margin-bottom: 20px;
+      color: #ff4d4d;
+      animation: zoomIn 1.5s ease forwards;
+    }
+    @keyframes zoomIn {
+      from { transform: scale(0.5); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+    #finalScreen p {
+      font-size: 1.5em;
+      color: #333;
+    }
+    /* Confeti */
+    .confetti {
+      position: fixed;
+      width: 10px;
+      height: 10px;
+      background-color: red;
+      opacity: 0.8;
+      z-index: 9999;
+      animation: confettiFall 3s linear forwards;
+    }
+    @keyframes confettiFall {
+      0% { transform: translateY(-10px) rotate(0deg); opacity: 1; }
+      100% { transform: translateY(100vh) rotate(360deg); opacity: 0; }
+    }
+  </style>
+</head>
+<body>
+  <!-- Pantalla inicial -->
+  <div id="initialScreen" class="screen visible">
+    <h1>Hola Angela, tengo una sorpresa para ti</h1>
+    <button id="startButton">Iniciar Sorpresa</button>
+  </div>
+  
+  <!-- Pantalla del juego: Atrapa el corazón -->
+  <div id="gameScreen" class="screen" style="display: none;">
+    <h2>¡Atrapa el corazón!</h2>
+    <div id="interactiveHeart"></div>
+  </div>
+  
+  <!-- Pantalla de la pregunta -->
+  <div id="questionScreen" class="screen" style="display: none;">
+    <h1>Angela, ¿Quieres ser mi San Valentín?</h1>
+    <div id="buttonsContainer">
+      <button id="yesButton">Sí</button>
+      <button id="noButton">No</button>
+    </div>
+  </div>
+  
+  <!-- Pantalla final -->
+  <div id="finalScreen" class="screen" style="display: none;">
+    <h1>¡Sabía que dirías que sí!</h1>
+    <p>Te amo, Angela.</p>
+  </div>
+  
+  <script>
+    // Función para crear corazones flotantes en el fondo
+    function createFloatingHeart() {
+      const heart = document.createElement('div');
+      heart.classList.add('floating-heart');
+      // Tamaño aleatorio entre 20px y 40px
+      const size = Math.random() * 20 + 20;
+      heart.style.width = size + 'px';
+      heart.style.height = size + 'px';
+      heart.style.left = Math.random() * 100 + 'vw';
+      // Duración aleatoria entre 4 y 8 segundos
+      const duration = Math.random() * 4 + 4;
+      heart.style.animationDuration = duration + 's';
+      document.body.appendChild(heart);
+      
+      // Eliminar el corazón al terminar la animación
+      heart.addEventListener('animationend', () => {
+        heart.remove();
+      });
+    }
+    // Crear un corazón flotante cada 500ms
+    setInterval(createFloatingHeart, 500);
+    
+    // Seleccionar elementos de las pantallas
+    const initialScreen = document.getElementById('initialScreen');
+    const gameScreen = document.getElementById('gameScreen');
+    const questionScreen = document.getElementById('questionScreen');
+    const finalScreen = document.getElementById('finalScreen');
+    
+    const startButton = document.getElementById('startButton');
+    const interactiveHeart = document.getElementById('interactiveHeart');
+    const yesButton = document.getElementById('yesButton');
+    const noButton = document.getElementById('noButton');
+    
+    // Función para mostrar una pantalla y ocultar las demás
+    function showScreen(screen) {
+      initialScreen.classList.remove('visible');
+      gameScreen.classList.remove('visible');
+      questionScreen.classList.remove('visible');
+      finalScreen.classList.remove('visible');
+      
+      initialScreen.style.display = 'none';
+      gameScreen.style.display = 'none';
+      questionScreen.style.display = 'none';
+      finalScreen.style.display = 'none';
+      
+      screen.style.display = 'block';
+      setTimeout(() => {
+        screen.classList.add('visible');
+      }, 10);
+    }
+    
+    // Posicionar el corazón interactivo en un lugar aleatorio dentro de gameScreen
+    function positionInteractiveHeart() {
+      const gameWidth = gameScreen.offsetWidth;
+      const gameHeight = gameScreen.offsetHeight;
+      const heartSize = 60; // Tamaño del corazón
+      const newLeft = Math.random() * (gameWidth - heartSize);
+      const newTop = Math.random() * (gameHeight - heartSize - 50) + 50; // Evitar la parte superior
+      interactiveHeart.style.left = newLeft + 'px';
+      interactiveHeart.style.top = newTop + 'px';
+    }
+    
+    // Al hacer clic en el botón de la pantalla inicial, mostrar gameScreen
+    startButton.addEventListener('click', () => {
+      showScreen(gameScreen);
+      positionInteractiveHeart();
+      // Mover el corazón interactivo cada 2 segundos
+      setInterval(positionInteractiveHeart, 500);
+    });
+    
+    // Al hacer clic en el corazón interactivo, avanzar a la pantalla de la pregunta
+    interactiveHeart.addEventListener('click', () => {
+      showScreen(questionScreen);
+    });
+    
+    // Mover el botón "No" cuando se pase el mouse sobre él
+    noButton.addEventListener('mouseover', () => {
+      const containerWidth = questionScreen.offsetWidth;
+      const containerHeight = questionScreen.offsetHeight;
+      const buttonWidth = noButton.offsetWidth;
+      const buttonHeight = noButton.offsetHeight;
+      const newLeft = Math.random() * (containerWidth - buttonWidth);
+      const newTop = Math.random() * (containerHeight - buttonHeight);
+      noButton.style.position = 'absolute';
+      noButton.style.left = newLeft + 'px';
+      noButton.style.top = newTop + 'px';
+    });
+    
+    // Al hacer clic en "Sí", mostrar la pantalla final y lanzar confeti
+    yesButton.addEventListener('click', () => {
+      showScreen(finalScreen);
+      launchConfetti();
+    });
+    
+    // Función para lanzar confeti en la pantalla final
+    function launchConfetti() {
+      const numConfetti = 100;
+      for (let i = 0; i < numConfetti; i++) {
+        const confetti = document.createElement('div');
+        confetti.classList.add('confetti');
+        confetti.style.left = Math.random() * 100 + 'vw';
+        confetti.style.top = -10 + 'px';
+        const colors = ['#FFB6C1', '#FFC0CB', '#FF69B4', '#FF1493', '#DB7093'];
+        confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+        document.body.appendChild(confetti);
+        confetti.addEventListener('animationend', () => {
+          confetti.remove();
+        });
+      }
+    }
+  </script>
+</body>
+</html>
